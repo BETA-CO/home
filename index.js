@@ -7,7 +7,7 @@ app.use(express.json());
 app.use(cors());
 
 // 🔑 Load Firebase Admin Key
-const serviceAccount = require("./serviceAccountKey.json");
+const serviceAccount = JSON.parse(process.env.FIREBASE_KEY);
 
 // 🔥 Initialize Firebase
 admin.initializeApp({
