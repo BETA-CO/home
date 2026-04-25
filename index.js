@@ -36,14 +36,21 @@ app.get("/device/light1/off", async (req, res) => {
 });
 
 // ✅ Generic route (better)
-app.post("/device/:id/:state", async (req, res) => {
-    const { id, state } = req.params;
+app.post("/webhook", async (req, res) => {
 
-    await db.ref(`devices/${id}`).update({
-        state: state === "on"
+    const intent = req.body.queryResult.intent.displayName;
+
+    if (intent === "TurnOnLight") {
+        await db.ref("devices/light1").update({ state: true });
+
+        return res.json({
+            fulfillmentText: "Light turned on"
+        });
+    }
+
+    return res.json({
+        fulfillmentText: "Command not recognized"
     });
-
-    res.send(`Device ${id} turned ${state}`);
 });
 
 // 🚀 Start server
