@@ -36,21 +36,39 @@ app.get("/device/light1/off", async (req, res) => {
 });
 
 // ✅ Generic route (better)
-app.post("/webhook", async (req, res) => {
+app.post("/alexa", async (req, res) => {
 
-    const intent = req.body.queryResult.intent.displayName;
+    const intent = req.body.request.intent?.name;
 
-    if (intent === "TurnOnLight") {
+    if (intent === "TurnOnLightIntent") {
         await db.ref("devices/light1").update({ state: true });
 
         return res.json({
-            fulfillmentText: "Light turned on"
+            version: "1.0",
+            response: {
+                outputSpeech: {
+                    type: "PlainText",
+                    text: "Light turned on"
+                },
+                shouldEndSession: true
+            }
         });
     }
 
-    return res.json({
-        fulfillmentText: "Command not recognized"
-    });
+    if (intent === "TurnOffLightIntent") {
+        await db.ref("devices/light1").update({ state: false });
+
+        return res.json({
+            version: "1.0",
+            response: {
+                outputSpeech: {
+                    type: "PlainText",
+                    text: "Light turned off"
+                },
+                shouldEndSession: true
+            }
+        });
+    }
 });
 
 // 🚀 Start server
