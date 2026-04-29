@@ -38,7 +38,22 @@ app.get("/device/light1/off", async (req, res) => {
 // ✅ Generic route (better)
 app.post("/alexa", async (req, res) => {
 
-    const intent = req.body.request.intent?.name;
+    console.log("Alexa hit");
+
+    const intent = req.body.request?.intent?.name;
+
+    if (req.body.request.type === "LaunchRequest") {
+        return res.json({
+            version: "1.0",
+            response: {
+                outputSpeech: {
+                    type: "PlainText",
+                    text: "Welcome to home control"
+                },
+                shouldEndSession: false
+            }
+        });
+    }
 
     if (intent === "TurnOnLightIntent") {
         await db.ref("devices/light1").update({ state: true });
@@ -50,7 +65,7 @@ app.post("/alexa", async (req, res) => {
                     type: "PlainText",
                     text: "Light turned on"
                 },
-                shouldEndSession: true
+                shouldEndSession: false
             }
         });
     }
@@ -65,10 +80,21 @@ app.post("/alexa", async (req, res) => {
                     type: "PlainText",
                     text: "Light turned off"
                 },
-                shouldEndSession: true
+                shouldEndSession: false
             }
         });
     }
+
+    return res.json({
+        version: "1.0",
+        response: {
+            outputSpeech: {
+                type: "PlainText",
+                text: "Command not understood"
+            },
+            shouldEndSession: true
+        }
+    });
 });
 
 // 🚀 Start server
